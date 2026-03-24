@@ -10,6 +10,8 @@
 #
 # Producer-Consumer pattern:
 #   Machines (producers) --> shared queue --> Printers (consumers)
+#
+# Change 2: Added request counters to track total prints and requests sent.
 
 import threading
 import time
@@ -39,6 +41,9 @@ class Assignment1:
         self.pThreads = []                 # List of printer threads
         # Mutex lock: prevents simultaneous queue access by multiple threads
         self.lock = threading.Lock()
+        # Counters to track simulation statistics (protected by lock)
+        self.total_requests_sent = 0
+        self.total_requests_printed = 0
 
     # ----------------------------------------------------------------
     # Start and manage the simulation
@@ -68,15 +73,18 @@ class Assignment1:
         self.sim_active = False
         print("[Simulation] Time elapsed. Waiting for threads to finish...")
 
-        # Join printer threads — wait for each to finish its current job
+        # Join printer threads - wait for each to finish its current job
         for printer in self.pThreads:
             printer.join()
 
-        # Join machine threads — wait for each to exit cleanly
+        # Join machine threads - wait for each to exit cleanly
         for machine in self.mThreads:
             machine.join()
 
+        # Print final simulation statistics
         print("[Simulation] All threads finished. Simulation complete.")
+        print(f"[Statistics] Total requests sent:    {self.total_requests_sent}")
+        print(f"[Statistics] Total requests printed: {self.total_requests_printed}")
 
     # ================================================================
     # Inner class: printerThread
@@ -108,11 +116,17 @@ class Assignment1:
             """
             Acquire the mutex lock, then dequeue and print one document.
             The lock ensures no two printers print the same document.
+            Increments the total_requests_printed counter.
             """
             print(f"Printer ID: {printerID} : now available")
             # Critical section: only one thread may access the queue at a time
             with self.outer.lock:
-                self.outer.print_list.queuePrint(printerID)
+                # Check if there is something to print before counting
+                if self.outer.print_list.head is not None:
+                    self.outer.print_list.queuePrint(printerID)
+                    self.outer.total_requests_printed += 1
+                else:
+                    self.outer.print_list.queuePrint(printerID)
 
     # ================================================================
     # Inner class: machineThread
@@ -144,6 +158,7 @@ class Assignment1:
             """
             Build a printDoc and insert it into the shared queue.
             The lock ensures no two machines corrupt the queue simultaneously.
+            Increments the total_requests_sent counter.
             """
             print(f"Machine {id} Sent a print request")
             # Create a document with the machine's message and ID
@@ -151,3 +166,4 @@ class Assignment1:
             # Critical section: only one thread may access the queue at a time
             with self.outer.lock:
                 self.outer.print_list.queueInsert(doc)
+                self.outer.total_requests_sent += 1
