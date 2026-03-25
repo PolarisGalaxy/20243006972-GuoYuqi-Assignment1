@@ -10,8 +10,6 @@
 #
 # Producer-Consumer pattern:
 #   Machines (producers) --> shared queue --> Printers (consumers)
-#
-# Change 2: Added request counters to track total prints and requests sent.
 
 import threading
 import time
@@ -116,17 +114,18 @@ class Assignment1:
             """
             Acquire the mutex lock, then dequeue and print one document.
             The lock ensures no two printers print the same document.
-            Increments the total_requests_printed counter.
+            If queue is empty, printer reports idle status instead of crashing.
             """
             print(f"Printer ID: {printerID} : now available")
             # Critical section: only one thread may access the queue at a time
             with self.outer.lock:
-                # Check if there is something to print before counting
                 if self.outer.print_list.head is not None:
+                    # Queue has a document - print it and count it
                     self.outer.print_list.queuePrint(printerID)
                     self.outer.total_requests_printed += 1
                 else:
-                    self.outer.print_list.queuePrint(printerID)
+                    # Queue is empty - printer reports idle, does not block
+                    print(f"Printer ID: {printerID} : queue is empty, standing by...")
 
     # ================================================================
     # Inner class: machineThread
