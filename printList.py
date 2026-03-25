@@ -2,6 +2,8 @@
 # Implements a linked-list based print queue.
 # The queue holds a maximum of 5 print requests at a time.
 # If a 6th request arrives, the oldest (head) is dropped (overwritten).
+#
+# Change 3: Added getLength() method to query current queue size.
 
 class printList:
 
@@ -24,7 +26,7 @@ class printList:
         new_node = printList.Node(doc)
 
         if self.head is None:
-            # Queue is empty — new node becomes the head
+            # Queue is empty - new node becomes the head
             self.head = new_node
             print(f"Inserted a request in the queue from {new_node.document.getSender()}")
             print("Number of requests in the queue 1")
@@ -64,6 +66,18 @@ class printList:
             print(":::::")
             # Remove the printed node from the queue
             self.head = self.head.next
+
+    def getLength(self):
+        """
+        Return the current number of documents in the queue.
+        Useful for monitoring queue load during simulation.
+        """
+        count = 0
+        currNode = self.head
+        while currNode is not None:
+            count += 1
+            currNode = currNode.next
+        return count
 
     def queuePrintAll(self):
         """
