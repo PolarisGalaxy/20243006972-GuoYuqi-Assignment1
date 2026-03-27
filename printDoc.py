@@ -1,12 +1,18 @@
 # printDoc.py
 # Represents a single print document/request.
-# Stores the document content and the ID of the machine that sent it.
+# Stores the document content, the ID of the machine that sent it,
+# and a timestamp recording when the request was created.
+# Change 5: Added timestamp to track when each print request was created.
+
+import time
 
 class printDoc:
     def __init__(self, s, senderID):
-        """Initialise the document with a string and sender machine ID."""
+        """Initialise the document with content, sender ID, and creation timestamp."""
         self.str = s
         self.senderID = senderID
+        # Record the time this print request was created
+        self.timestamp = time.strftime("%H:%M:%S", time.localtime())
 
     def setStr(self, s, senderID):
         """Update the document content and sender ID."""
@@ -20,3 +26,7 @@ class printDoc:
     def getSender(self):
         """Return the ID of the machine that sent this document."""
         return self.senderID
+
+    def getTimestamp(self):
+        """Return the time this print request was created."""
+        return self.timestamp
