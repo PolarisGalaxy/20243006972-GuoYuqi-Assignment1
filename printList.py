@@ -2,8 +2,7 @@
 # Implements a linked-list based print queue.
 # The queue holds a maximum of 5 print requests at a time.
 # If a 6th request arrives, the oldest (head) is dropped (overwritten).
-#
-# Change 3: Added getLength() method to query current queue size.
+# Change 6: queuePrint now displays the document timestamp.
 
 class printList:
 
@@ -56,13 +55,18 @@ class printList:
     def queuePrint(self, printerID):
         """
         Print and remove the document at the head of the queue.
+        Now also displays the timestamp of when the request was originally made.
         Does nothing if the queue is empty.
         """
         if self.head is not None:
             currNode = self.head
             print(":::::")
+            # Show timestamp if available (printDoc may have getTimestamp method)
+            timestamp = ""
+            if hasattr(currNode.document, 'getTimestamp'):
+                timestamp = f" [Requested at: {currNode.document.getTimestamp()}]"
             print(f"Printer {printerID} Printing the request from Machine ID: "
-                  f"{currNode.document.getSender()} {currNode.document.getStr()}")
+                  f"{currNode.document.getSender()} {currNode.document.getStr()}{timestamp}")
             print(":::::")
             # Remove the printed node from the queue
             self.head = self.head.next
