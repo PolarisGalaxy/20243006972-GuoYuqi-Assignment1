@@ -36,3 +36,10 @@ Requires Python 3.x. No external dependencies.
 - `threading.Lock` is used as a mutex around all `queueInsert` and `queuePrint` calls.
 - All threads are set as `daemon=True` so they exit cleanly when the simulation ends.
 - Simulation runs for 30 seconds by default (`SIMULATION_TIME = 30`).
+
+## Threading Design Notes
+
+- 	hreading.Lock() used as mutex for all shared queue access
+- daemon=True on all threads ensures clean exit when simulation ends
+- join(timeout=5) prevents simulation from hanging on exit
+- Queue max size is 5; oldest request is dropped if exceeded
